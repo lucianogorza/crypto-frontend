@@ -19,7 +19,7 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import CurrencyContext, {
   CurrencyContextType,
-} from '../../contexts/currencyContext';
+} from '../../context/currencyContext';
 
 const updateWallet = async (params: {
   isFavorite: boolean;

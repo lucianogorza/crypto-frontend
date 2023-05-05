@@ -1,4 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
   Button,
@@ -8,89 +7,27 @@ import {
   Space,
   Spin,
   Typography,
-  message,
 } from 'antd';
 import { WalletComponent } from './wallet';
 import { Wallet } from '../../interfaces/wallet';
 import { PlusOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
-
-const getWallets = async (orderBy: string) => {
-  const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/wallet`, {
-    params: {
-      orderBy:
-        orderBy === 'favorite' ? { isFavorite: 'desc' } : { createdAt: 'desc' },
-    },
-  });
-  return data;
-};
-
-const createWallet = async (address: string) => {
-  const { data: response } = await axios.post(
-    `${process.env.REACT_APP_API_URL}/wallet`,
-    { address }
-  );
-  return response.data;
-};
-
-const deleteWallet = async (walletId: string) => {
-  const { data: response } = await axios.delete(
-    `${process.env.REACT_APP_API_URL}/wallet/${walletId}`
-  );
-  return response;
-};
+import {
+  useCreateWallet,
+  useDeleteWallet,
+  useGetWallets,
+} from '../../hooks/wallet';
 
 export const WalletList = () => {
   const [newAddress, setNewAddress] = useState<string>();
   const [orderBy, setOrderBy] = useState('noOrder');
 
-  const queryClient = useQueryClient();
-  const { mutate: mutateCreate, isLoading: isLoadingCreate } = useMutation(
-    createWallet,
-    {
-      onSuccess: () => {
-        setNewAddress(undefined);
-        message.open({
-          type: 'success',
-          content: 'Wallet created',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        message.open({
-          type: 'error',
-          content: error?.response?.data?.message ?? 'There was an error',
-        });
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries(['createWallet']);
-      },
-    }
-  );
+  const { mutate: mutateCreate, isLoading: isLoadingCreate } =
+    useCreateWallet();
 
-  const { mutate: mutateDelete } = useMutation(deleteWallet, {
-    onSuccess: () => {
-      message.open({
-        type: 'success',
-        content: 'Wallet deleted',
-      });
-      refetch();
-    },
-    onError: () => {
-      message.open({
-        type: 'error',
-        content: 'There was an error',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['createWallet']);
-    },
-  });
+  const { mutate: mutateDelete } = useDeleteWallet();
 
-  const { data, status, refetch } = useQuery(['wallets', orderBy], () =>
-    getWallets(orderBy)
-  );
+  const { data, status, refetch } = useGetWallets(orderBy);
 
   useEffect(() => {
     refetch();
@@ -110,6 +47,7 @@ export const WalletList = () => {
   const handleAddWallet = () => {
     if (!newAddress) return;
     mutateCreate(newAddress);
+    setNewAddress(undefined);
   };
 
   const handleSetOrder = (value: string) => {
@@ -130,6 +68,7 @@ export const WalletList = () => {
               value={newAddress}
               placeholder="Input wallet address"
               onChange={(e) => handleOnChangeNewAddress(e.target.value)}
+              disabled={isLoadingCreate}
               style={{ width: '350px' }}
             />
             <Button

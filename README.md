@@ -2,6 +2,16 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Installation
+
+```bash
+$ npm install
+```
+
+## Enviroment variables
+
+- Create a new file .env from .env.example
+
 ## Available Scripts
 
 In the project directory, you can run:

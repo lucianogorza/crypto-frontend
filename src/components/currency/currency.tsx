@@ -1,22 +1,12 @@
-import { Button, Card, Input, Space, Typography, message } from 'antd';
+import { Button, Card, Input, Space, Typography } from 'antd';
 import { Currency } from '../../interfaces/currency';
 import { useState } from 'react';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-const updateCurrency = async (params: { currencyId: string; rate: number }) => {
-  const { currencyId, rate } = params;
-  const { data: response } = await axios.patch(
-    `${process.env.REACT_APP_API_URL}/currency/${currencyId}`,
-    { rate }
-  );
-  return response;
-};
+import { useUpdateCurrency } from '../../hooks/currency';
 
 interface CurrencyComponentProps {
   currency: Currency;
-  setCurrencies: React.Dispatch<React.SetStateAction<Currency[]>>; //(currencies: Currency[]) => void;
+  setCurrencies: React.Dispatch<React.SetStateAction<Currency[]>>;
 }
 
 export const CurrencyComponent = ({
@@ -26,30 +16,11 @@ export const CurrencyComponent = ({
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [rate, setRate] = useState(currency.rate.toString());
 
-  const queryClient = useQueryClient();
-  const { mutate, isLoading } = useMutation(updateCurrency, {
-    onSuccess: () => {
-      setCurrencies((currencies: Currency[]) =>
-        currencies.map((c) => ({
-          ...c,
-          rate: c.id === currency.id ? Number.parseFloat(rate) : c.rate,
-        }))
-      );
-      message.open({
-        type: 'success',
-        content: 'Currency updated',
-      });
-    },
-    onError: () => {
-      message.open({
-        type: 'error',
-        content: 'There was an error',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['updateCurrency']);
-    },
-  });
+  const { mutate, isLoading } = useUpdateCurrency(
+    currency.id,
+    rate,
+    setCurrencies
+  );
 
   const handleOnChange = (value: string) => {
     setRate(value ?? '');

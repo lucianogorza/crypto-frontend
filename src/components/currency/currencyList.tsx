@@ -3,17 +3,11 @@ import { Alert, Space, Spin, Typography } from 'antd';
 import { CurrencyComponent } from './currency';
 import CurrencyContext, {
   CurrencyContextType,
-} from '../../contexts/currencyContext';
-import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
-
-const getCurrencies = async () => {
-  const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/currency`);
-  return data;
-};
+} from '../../context/currencyContext';
+import { useGetCurrencies } from '../../hooks/currency';
 
 export const CurrencyList = () => {
-  const { data, status } = useQuery(['currencies'], getCurrencies);
+  const { data, status } = useGetCurrencies();
 
   const { currencies, setCurrencies } = useContext(
     CurrencyContext

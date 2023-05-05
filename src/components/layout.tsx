@@ -1,7 +1,7 @@
 import { Layout, Space } from 'antd';
 import { WalletList } from './wallet/walletList';
 import { CurrencyList } from './currency/currencyList';
-import CurrencyContext from '../contexts/currencyContext';
+import CurrencyContext from '../context/currencyContext';
 import { useState } from 'react';
 import { Currency } from '../interfaces/currency';
 
