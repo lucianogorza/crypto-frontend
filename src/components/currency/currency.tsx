@@ -65,6 +65,7 @@ export const CurrencyComponent = ({
               icon={<CheckOutlined />}
               onClick={handleOnSave}
               loading={isLoading}
+              disabled={!(rate && Number.parseFloat(rate))}
             />
             <Button icon={<CloseOutlined />} onClick={handleOnCancel} />
           </>
